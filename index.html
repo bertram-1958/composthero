@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food Waste Rush</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --green:#7bc400;
+  --dark:#174c25;
+  --red:#fe0121;
+  --cream:#fff7df;
+  --brown:#7a4a22;
+  --white:#ffffff;
+  --black:#000000;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+html,body{
+  width:100%;
+  height:100%;
+  font-family:"Prompt", Arial, sans-serif;
+  background:#eaffd8;
+  overflow:hidden;
+}
+
+button{
+  font-family:"Prompt", Arial, sans-serif;
+  color:#000;
+}
+
+.app{
+  width:100vw;
+  height:100vh;
+  max-width:480px;
+  margin:auto;
+  position:relative;
+  overflow:hidden;
+  background:#d9f7ff;
+}
+
+.page{
+  position:absolute;
+  inset:0;
+  display:none;
+}
+
+.page.active{display:block}
+
+.office-bg{
+  position:absolute;
+  inset:0;
+  background:url("images/bg-mobile.webp") center/cover no-repeat;
+  z-index:0;
+}
+
+.city,.floor{display:none}
+
+.game-logo{
+  width:320px;
+  max-width:86%;
+  display:block;
+  margin:38px auto 12px;
+  position:relative;
+  z-index:5;
+}
+
+.subtitle{
+  position:relative;
+  z-index:5;
+  text-align:center;
+  width:86%;
+  margin:10px auto 22px;
+  font-size:18px;
+  font-weight:800;
+  color:#fff;
+  text-shadow:0 3px 8px rgba(0,0,0,.55);
+}
+
+.start-card,.result-card{
+  position:relative;
+  z-index:5;
+  width:88%;
+  margin:24px auto 0;
+  background:rgba(255,247,223,.94);
+  border:4px solid var(--dark);
+  border-radius:28px;
+  padding:22px;
+  text-align:center;
+  box-shadow:0 8px 0 var(--dark);
+}
+
+.start-card p{
+  line-height:1.6;
+  font-weight:800;
+}
+
+.input{
+  width:100%;
+  margin:18px 0;
+  padding:15px;
+  border-radius:22px;
+  border:3px solid #e5e5e5;
+  text-align:center;
+  font-size:18px;
+  font-family:"Prompt";
+}
+
+.btn{
+  width:100%;
+  padding:17px;
+  border:none;
+  border-radius:24px;
+  background:var(--green);
+  color:#000 !important;
+  box-shadow:0 7px 0 #4e8c00;
+  font-size:22px;
+  font-weight:900;
+  font-family:"Prompt";
+  cursor:pointer;
+}
+
+.btn:active{
+  transform:translateY(5px);
+  box-shadow:0 2px 0 #4e8c00;
+}
+
+.secondary{
+  margin-top:12px;
+  background:#fff;
+  color:#000 !important;
+  border:3px solid #000;
+  box-shadow:none;
+}
+
+.rank-btn{
+  position:fixed;
+  top:16px;
+  right:16px;
+  z-index:80;
+  min-width:54px;
+  height:54px;
+  padding:0 14px;
+  border:none;
+  border-radius:28px;
+  background:var(--green);
+  color:#000 !important;
+  font-size:19px;
+  font-weight:900;
+  font-family:"Prompt";
+  box-shadow:0 6px 18px rgba(0,0,0,.25);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+}
+
+.rank-icon{
+  width:28px;
+  height:28px;
+  object-fit:contain;
+}
+
+.rank-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:100;
+  padding:18px;
+  align-items:center;
+  justify-content:center;
+}
+
+.rank-modal.active{display:flex}
+
+.rank-box{
+  width:100%;
+  max-width:430px;
+  max-height:80vh;
+  overflow:auto;
+  background:#fff;
+  border:4px solid #000;
+  border-radius:26px;
+  padding:22px;
+  position:relative;
+}
+
+.close-rank{
+  position:absolute;
+  top:10px;
+  right:14px;
+  border:none;
+  background:none;
+  font-size:30px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.rank-title{
+  font-size:26px;
+  font-weight:900;
+  text-align:center;
+  color:var(--dark);
+  margin-bottom:14px;
+}
+
+.rank-row{
+  display:grid;
+  grid-template-columns:42px 1fr 95px;
+  gap:8px;
+  align-items:center;
+  padding:10px 0;
+  border-bottom:1px solid #eee;
+}
+
+.rank-no{font-weight:900;color:var(--green)}
+.rank-name{font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-score{text-align:right;font-weight:900}
+.rank-score small{display:block;font-size:10px;color:#777}
+.loading{text-align:center;padding:28px 0;color:#777;font-weight:900}
+
+.hud{
+  position:absolute;
+  top:36px;
+  left:12px;
+  right:12px;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+  z-index:20;
+}
+
+.hud-box{
+  background:rgba(255,247,223,.96);
+  border:3px solid var(--brown);
+  border-radius:16px;
+  text-align:center;
+  padding:8px 4px;
+  box-shadow:0 4px 0 var(--brown);
+  font-weight:900;
+  color:var(--dark);
+}
+
+.hud-box small{display:block;font-size:11px;color:#6d4a20}
+.hud-box strong{font-size:21px}
+
+.instruction{
+  position:absolute;
+  top:112px;
+  left:16px;
+  right:16px;
+  z-index:18;
+  background:rgba(255,247,223,.96);
+  border:3px solid var(--brown);
+  border-radius:20px;
+  padding:12px;
+  text-align:center;
+  font-weight:900;
+  color:#5c371a;
+}
+
+.road{
+  position:absolute;
+  inset:0;
+  z-index:5;
+}
+
+.item{
+  position:absolute;
+  width:72px;
+  height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:12;
+  filter:drop-shadow(0 5px 5px rgba(0,0,0,.25));
+  user-select:none;
+  pointer-events:none;
+}
+
+.falling-img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;
+}
+
+.player{
+  position:absolute;
+  bottom:82px;
+  left:50%;
+  transform:translateX(-50%);
+  width:118px;
+  height:136px;
+  z-index:15;
+  touch-action:none;
+  transition:left .035s linear;
+}
+
+.player-body{
+  width:118px;
+  height:118px;
+  margin:auto;
+  background:transparent;
+  border:none;
+  box-shadow:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.player-image{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  filter:drop-shadow(0 8px 8px rgba(0,0,0,.3));
+}
+
+.player-label{
+  text-align:center;
+  margin-top:0;
+  font-size:13px;
+  font-weight:900;
+  color:#fff;
+  text-shadow:0 2px 3px #000;
+}
+
+.machine-page-title{
+  position:relative;
+  z-index:5;
+  text-align:center;
+  margin-top:42px;
+  font-size:31px;
+  font-weight:900;
+  color:#fff;
+  line-height:1.05;
+  text-shadow:0 3px 8px rgba(0,0,0,.55);
+}
+
+.machine-page-title span{color:#d7ff8a}
+
+.machine{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:88px;
+  width:240px;
+  height:210px;
+  background:rgba(255,247,223,.94);
+  border:5px solid var(--dark);
+  border-radius:28px;
+  z-index:15;
+  text-align:center;
+  color:#174c25;
+  font-weight:900;
+  padding-top:16px;
+  box-shadow:0 8px 0 var(--dark);
+}
+
+.machine-title{font-size:17px}
+.machine-emoji{margin-top:4px}
+.machine-image{width:145px;height:145px;object-fit:contain}
+
+.machine.error{
+  animation:shake .25s infinite;
+  background:#ffe3e3;
+}
+
+@keyframes shake{
+  0%{transform:translateX(-50%) rotate(0deg)}
+  25%{transform:translateX(-52%) rotate(-2deg)}
+  50%{transform:translateX(-48%) rotate(2deg)}
+  100%{transform:translateX(-50%) rotate(0deg)}
+}
+
+.collected-panel{
+  position:absolute;
+  top:120px;
+  left:18px;
+  right:18px;
+  background:rgba(255,247,223,.96);
+  border:3px solid var(--brown);
+  border-radius:20px;
+  padding:12px;
+  z-index:18;
+  text-align:center;
+  font-weight:900;
+}
+
+.collected-list{
+  margin-top:8px;
+  font-size:28px;
+  min-height:38px;
+}
+
+.toast{
+  position:absolute;
+  top:190px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#fff;
+  border:3px solid var(--dark);
+  border-radius:18px;
+  padding:10px 18px;
+  font-size:18px;
+  font-weight:900;
+  z-index:40;
+  display:none;
+  text-align:center;
+}
+
+.flash{
+  position:absolute;
+  inset:0;
+  z-index:50;
+  pointer-events:none;
+  background:#fe012155;
+  display:none;
+}
+.flash.active{display:block;animation:flash .25s linear}
+@keyframes flash{from{opacity:1}to{opacity:0}}
+
+.move-hint{
+  position:absolute;
+  left:18px;
+  right:18px;
+  bottom:24px;
+  z-index:30;
+  text-align:center;
+  color:#fff;
+  font-weight:900;
+  font-size:18px;
+  text-shadow:0 2px 4px #000;
+}
+
+.result-card{
+  margin-top:30px;
+  max-height:94vh;
+  overflow:auto;
+}
+.result-title{font-size:30px;font-weight:900;color:var(--dark)}
+.big-score{font-size:58px;font-weight:900;color:var(--green);margin:12px 0 4px}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0}
+.result-stat{background:#fff;border-radius:16px;padding:12px 4px;font-weight:900}
+.result-stat strong{font-size:26px}
+.result-stat small{display:block;font-size:12px;color:#777}
+
+.plant-result{
+  margin:18px 0;
+  background:#fbfff4;
+  border:3px dashed var(--green);
+  border-radius:24px;
+  padding:18px;
+  text-align:center;
+}
+
+.plant-image{
+  width:180px;
+  max-width:80%;
+  margin:0 auto 8px;
+  display:block;
+  object-fit:contain;
+}
+
+.plant-level{font-size:15px;font-weight:900;color:#777}
+.plant-title{font-size:23px;font-weight:900;color:var(--dark);margin:6px 0}
+.plant-message{font-size:14px;font-weight:700;line-height:1.5;color:#174c25}
+
+@media(min-width:700px){
+  .app{
+    max-width:none;
+    width:100vw;
+    height:100vh;
+  }
+  .office-bg{background:url("images/bg-desktop.webp") center/cover no-repeat}
+  .game-logo{width:420px;margin-top:46px}
+  .start-card,.result-card{max-width:460px}
+  .player{bottom:86px}
+}
+
+@media(max-width:360px){
+  .game-logo{width:280px}
+  .item{width:62px;height:62px}
+  .player{width:104px;height:120px}
+  .player-body{width:104px;height:104px}
+  .result-card{margin-top:20px}
+  .big-score{font-size:48px}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <div class="office-bg"></div>
+  <div class="city"></div>
+  <div class="floor"></div>
+  <div id="flash" class="flash"></div>
+  <div id="toast" class="toast"></div>
+
+  <button id="rankBtn" class="rank-btn" onclick="openLeaderboard()">
+    <span>🏆</span> Rank
+  </button>
+
+  <div id="rankModal" class="rank-modal">
+    <div class="rank-box">
+      <button class="close-rank" onclick="closeLeaderboard()">×</button>
+      <div class="rank-title">Food Waste Rush Ranking 🌱</div>
+      <div id="rankList"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+
+  <section id="startPage" class="page active">
+    <img src="images/office-food-waste-rush-logo.webp" class="game-logo" alt="Food Waste Rush Logo">
+    <div class="subtitle">เก็บ Food Waste ให้ถูก แล้วส่งเข้าเครื่องทำปุ๋ย 🌱</div>
+
+    <div class="start-card">
+      <p>
+        ใช้นิ้วสไลด์ตัวละครซ้าย–ขวา<br>
+        เก็บเฉพาะเศษอาหาร<br>
+        หลบขยะที่ทำปุ๋ยไม่ได้
+      </p>
+
+      <input id="playerInput" class="input" placeholder="ชื่อเล่น + แผนก">
+      <button class="btn" onclick="startGame()">เริ่มเกม</button>
+    </div>
+  </section>
+
+  <section id="runPage" class="page">
+    <div class="hud">
+      <div class="hud-box"><small>เวลา</small><strong id="timeText">45</strong></div>
+      <div class="hud-box"><small>คะแนน</small><strong id="scoreText">0</strong></div>
+      <div class="hud-box"><small>ผิด</small><strong id="wrongText">0</strong></div>
+    </div>
+
+    <div class="instruction">
+      เก็บเฉพาะ Food Waste ✅<br>
+      หลบพลาสติก / ซอง / แก้ว ❌
+    </div>
+
+    <div class="road">
+      <div id="itemsLayer"></div>
+    </div>
+
+    <div id="player" class="player">
+      <div class="player-body">
+        <img src="images/player-bin.webp" class="player-image" alt="Player Bin">
+      </div>
+      <div class="player-label">FOOD WASTE</div>
+    </div>
+
+    <div class="move-hint">ใช้นิ้วสไลด์ซ้าย–ขวาเพื่อเก็บเศษอาหาร</div>
+  </section>
+
+  <section id="machinePage" class="page">
+    <div class="machine-page-title">FEED THE<br><span>COMPOST MACHINE</span></div>
+
+    <div class="collected-panel">
+      Food Waste ที่เก็บได้
+      <div id="collectedList" class="collected-list"></div>
+    </div>
+
+    <div id="machine" class="machine">
+      <div class="machine-title">COMPOST MACHINE</div>
+      <div class="machine-emoji">
+        <img id="machineImage" src="images/compost-machine.webp" class="machine-image" alt="Compost Machine">
+      </div>
+    </div>
+
+    <div style="position:absolute;left:24px;right:24px;bottom:35px;z-index:30">
+      <button class="btn" onclick="feedMachine()">ใส่เข้าเครื่องทำปุ๋ย</button>
+    </div>
+  </section>
+
+  <section id="resultPage" class="page">
+    <div class="result-card">
+      <div class="result-title">ผลลัพธ์</div>
+      <div id="resultName" style="font-weight:900;color:var(--green);font-size:24px;margin-top:6px">Player</div>
+
+      <div id="finalScore" class="big-score">0</div>
+      <div style="font-weight:900;color:#777">คะแนนรวม</div>
+
+      <div class="result-grid">
+        <div class="result-stat"><strong id="finalCorrect">0</strong><small>เก็บถูก</small></div>
+        <div class="result-stat"><strong id="finalWrong">0</strong><small>เก็บผิด</small></div>
+        <div class="result-stat"><strong id="finalAccuracy">0%</strong><small>Accuracy</small></div>
+      </div>
+
+      <div class="plant-result">
+        <img id="plantImage" src="images/plant-level-1.webp" class="plant-image" alt="Plant Level">
+        <div id="plantLevel" class="plant-level">Sprout</div>
+        <div id="plantTitle" class="plant-title">พยายามอีกนิดนะ!</div>
+        <p id="plantMessage" class="plant-message">เศษอาหารที่คัดแยกได้เริ่มช่วยให้ต้นไม้เติบโตแล้ว</p>
+      </div>
+
+      <button class="btn" onclick="restartGame()">เล่นอีกครั้ง</button>
+      <button class="btn secondary" onclick="goHome()">กลับหน้าแรก</button>
+    </div>
+  </section>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbwBdoqiC4I2P1J6_16b5W_CZI7_Pd9muYa3e498nffs4W8V--UwNpkvF2LBkhRWBbGd/exec";
+
+const foodItems = [
+  {img:"images/banana-peel.webp", icon:"🍌", name:"banana peel"},
+  {img:"images/egg-shell.webp", icon:"🥚", name:"egg shell"},
+  {img:"images/vegetable.webp", icon:"🥬", name:"vegetable scrap"},
+  {img:"images/apple-core.webp", icon:"🍎", name:"apple core"},
+  {img:"images/rice.webp", icon:"🍚", name:"rice"},
+  {img:"images/coffee-ground.webp", icon:"☕", name:"coffee ground"}
+];
+
+const wasteItems = [
+  {img:"images/plastic-bottle.webp", name:"plastic bottle"},
+  {img:"images/plastic-cup.webp", name:"plastic cup"},
+  {img:"images/snack-bag.webp", name:"snack bag"},
+  {img:"images/juice-box.webp", name:"juice box"},
+  {img:"images/can.webp", name:"can"},
+  {img:"images/wet-tissue.webp", name:"wet tissue"}
+];
+
+let playerName = "Player";
+let playerX = 240;
+let score = 0;
+let correct = 0;
+let wrong = 0;
+let timeLeft = 45;
+let gameRunning = false;
+let spawnTimer = null;
+let clockTimer = null;
+let items = [];
+let speed = 3;
+let collectedFood = [];
+let machineBonus = 0;
+let lastSpawnX = -999;
+let lastSpawnTime = 0;
+let hasSubmitted = false;
+
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  updateRankButton(id);
+}
+
+function updateRankButton(pageId){
+  const rankBtn = document.getElementById("rankBtn");
+  if(!rankBtn) return;
+  rankBtn.style.display = pageId === "startPage" ? "flex" : "none";
+}
+
+function startGame(){
+  playerName = document.getElementById("playerInput").value.trim() || "Player";
+  score = 0;
+  correct = 0;
+  wrong = 0;
+  timeLeft = 45;
+  speed = 3;
+  items = [];
+  collectedFood = [];
+  machineBonus = 0;
+  gameRunning = true;
+  hasSubmitted = false;
+  lastSpawnX = -999;
+
+  document.getElementById("itemsLayer").innerHTML = "";
+  document.getElementById("machineImage").src = "images/compost-machine.webp";
+
+  const appRect = document.querySelector(".app").getBoundingClientRect();
+  playerX = appRect.width / 2;
+
+  updatePlayer();
+  updateHUD();
+  showPage("runPage");
+
+  spawnTimer = setInterval(spawnItem, 760);
+  clockTimer = setInterval(() => {
+    timeLeft--;
+    speed += 0.04;
+    updateHUD();
+
+    if(timeLeft <= 0){
+      goToMachine();
+    }
+  }, 1000);
+
+  requestAnimationFrame(gameLoop);
+}
+
+function spawnItem(){
+  if(!gameRunning) return;
+
+  const now = Date.now();
+  if(now - lastSpawnTime < 520) return;
+  lastSpawnTime = now;
+
+  const appRect = document.querySelector(".app").getBoundingClientRect();
+  const isFood = Math.random() < 0.6;
+  const list = isFood ? foodItems : wasteItems;
+  const data = list[Math.floor(Math.random() * list.length)];
+
+  let x = 30 + Math.random() * (appRect.width - 104);
+  let tries = 0;
+
+  while(Math.abs(x - lastSpawnX) < 92 && tries < 8){
+    x = 30 + Math.random() * (appRect.width - 104);
+    tries++;
+  }
+
+  const tooClose = items.some(item => Math.abs(item.x - x) < 82 && item.y < 150);
+  if(tooClose) return;
+
+  lastSpawnX = x;
+
+  const el = document.createElement("div");
+  el.className = "item";
+  el.innerHTML = `<img src="${data.img}" class="falling-img" alt="${data.name}">`;
+  el.style.left = x + "px";
+  el.style.top = "-80px";
+
+  document.getElementById("itemsLayer").appendChild(el);
+
+  items.push({
+    el,
+    x,
+    y:-80,
+    isFood,
+    icon:data.icon || "❌",
+    speed:speed + Math.random() * 0.7
+  });
+}
+
+function gameLoop(){
+  if(!gameRunning) return;
+
+  const playerRect = document.getElementById("player").getBoundingClientRect();
+
+  for(let i = items.length - 1; i >= 0; i--){
+    const item = items[i];
+    item.y += item.speed;
+    item.el.style.top = item.y + "px";
+
+    const itemRect = item.el.getBoundingClientRect();
+
+    const hit =
+      itemRect.bottom > playerRect.top + 12 &&
+      itemRect.top < playerRect.bottom - 8 &&
+      itemRect.right > playerRect.left + 12 &&
+      itemRect.left < playerRect.right - 12;
+
+    if(hit){
+      collectItem(item,i);
+    }else if(item.y > window.innerHeight + 80){
+      removeItem(i);
+    }
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+
+function collectItem(item,index){
+  if(item.isFood){
+    correct++;
+    score += 100;
+    collectedFood.push(item.icon);
+    showToast("เก็บ Food Waste ถูกต้อง! 🌱", "green");
+  }else{
+    wrong++;
+    score = Math.max(0, score - 50);
+    showToast("ผิด! ชิ้นนี้เข้าเครื่องไม่ได้ 💥", "red");
+    flashDamage();
+  }
+
+  removeItem(index);
+  updateHUD();
+
+  if(wrong >= 5){
+    goToMachine();
+  }
+}
+
+function removeItem(index){
+  if(!items[index]) return;
+  items[index].el.remove();
+  items.splice(index,1);
+}
+
+function updateHUD(){
+  document.getElementById("timeText").innerText = timeLeft;
+  document.getElementById("scoreText").innerText = score;
+  document.getElementById("wrongText").innerText = wrong;
+}
+
+function updatePlayer(){
+  const appRect = document.querySelector(".app").getBoundingClientRect();
+  const minX = 58;
+  const maxX = appRect.width - 58;
+
+  playerX = Math.max(minX, Math.min(maxX, playerX));
+  document.getElementById("player").style.left = playerX + "px";
+}
+
+function setPlayerByClientX(clientX){
+  if(!gameRunning) return;
+
+  const appRect = document.querySelector(".app").getBoundingClientRect();
+  playerX = clientX - appRect.left;
+
+  updatePlayer();
+}
+
+function goToMachine(){
+  if(!gameRunning) return;
+
+  gameRunning = false;
+  clearInterval(spawnTimer);
+  clearInterval(clockTimer);
+
+  items.forEach(item => item.el.remove());
+  items = [];
+
+  document.getElementById("collectedList").innerText =
+    collectedFood.slice(0,12).join(" ") || "ยังไม่มี Food Waste";
+
+  document.getElementById("machine").classList.remove("error");
+  document.getElementById("machineImage").src = "images/compost-machine.webp";
+
+  showPage("machinePage");
+}
+
+function feedMachine(){
+  const machine = document.getElementById("machine");
+
+  if(correct > wrong){
+    machineBonus = correct * 20;
+    score += machineBonus;
+    showToast("เครื่องทำปุ๋ยทำงานสำเร็จ! +" + machineBonus, "green");
+  }else{
+    score = Math.max(0, score - 100);
+    machine.classList.add("error");
+    document.getElementById("machineImage").src = "images/compost-machine-error.webp";
+    showToast("เครื่อง Error เพราะมีของปนเปื้อน!", "red");
+  }
+
+  setTimeout(endGame, 900);
+}
+
+function getPlantLevel(score, accuracy){
+  if(score >= 1600 && accuracy >= 90){
+    return {
+      level:"Big Tree",
+      image:"images/plant-level-4.webp",
+      title:"Compost Hero ตัวจริง!",
+      message:"คุณช่วยเปลี่ยน Food Waste ให้กลายเป็นคุณค่ากลับคืนสู่ธรรมชาติ ต้นไม้เติบโตอย่างสมบูรณ์ เพื่อโลกที่ดีขึ้นของเรา"
+    };
+  }
+
+  if(score >= 1100 && accuracy >= 75){
+    return {
+      level:"Healthy Plant",
+      image:"images/plant-level-3.webp",
+      title:"ยอดเยี่ยม!",
+      message:"คุณคัดแยก Food Waste ได้ดีมาก ปุ๋ยที่ได้ช่วยให้ต้นไม้เติบโตอย่างแข็งแรง และช่วยลดขยะอินทรีย์ไปพร้อมกัน"
+    };
+  }
+
+  if(score >= 600 && accuracy >= 50){
+    return {
+      level:"Small Plant",
+      image:"images/plant-level-2.webp",
+      title:"ทำได้ดีแล้ว!",
+      message:"การคัดแยกของคุณช่วยให้เครื่องทำปุ๋ยทำงานได้ดีขึ้น ต้นไม้เริ่มเติบโตแล้ว มารักษาความแม่นยำให้ดียิ่งขึ้นกัน"
+    };
+  }
+
+  return {
+    level:"Sprout",
+    image:"images/plant-level-1.webp",
+    title:"พยายามอีกนิดนะ!",
+    message:"เศษอาหารที่คัดแยกได้เริ่มช่วยให้ต้นไม้เติบโตแล้ว ครั้งหน้าเลือกให้แม่นขึ้น เพื่อช่วยให้ต้นไม้โตเพื่อโลกของเรา"
+  };
+}
+
+function endGame(){
+  const total = correct + wrong;
+  const accuracy = total > 0 ? Number(((correct / total) * 100).toFixed(1)) : 0;
+  const usedTime = 45 - timeLeft;
+  const plant = getPlantLevel(score, accuracy);
+
+  document.getElementById("resultName").innerText = playerName;
+  document.getElementById("finalScore").innerText = score;
+  document.getElementById("finalCorrect").innerText = correct;
+  document.getElementById("finalWrong").innerText = wrong;
+  document.getElementById("finalAccuracy").innerText = accuracy + "%";
+
+  document.getElementById("plantImage").src = plant.image;
+  document.getElementById("plantLevel").innerText = plant.level;
+  document.getElementById("plantTitle").innerText = plant.title;
+  document.getElementById("plantMessage").innerText = plant.message;
+
+  showPage("resultPage");
+  submitScore(score, correct, wrong, accuracy, usedTime);
+}
+
+function submitScore(finalScore, finalCorrect, finalWrong, finalAccuracy, finalTime){
+  if(hasSubmitted) return;
+  hasSubmitted = true;
+
+  const payload = {
+    name: playerName,
+    score: finalScore,
+    correct: finalCorrect,
+    wrong: finalWrong,
+    accuracy: finalAccuracy,
+    time: finalTime
+  };
+
+  fetch(API_URL, {
+    method:"POST",
+    mode:"no-cors",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify(payload)
+  }).catch(err => console.log(err));
+}
+
+function openLeaderboard(){
+  document.getElementById("rankModal").classList.add("active");
+  loadLeaderboard();
+}
+
+function closeLeaderboard(){
+  document.getElementById("rankModal").classList.remove("active");
+}
+
+function loadLeaderboard(){
+  const callbackName = "leaderboardCallback_" + Date.now();
+  const rankList = document.getElementById("rankList");
+
+  rankList.innerHTML = '<div class="loading">Loading Ranking...</div>';
+
+  window[callbackName] = function(data){
+    renderLeaderboard(data);
+    delete window[callbackName];
+    script.remove();
+  };
+
+  const script = document.createElement("script");
+  script.src = API_URL + "?callback=" + callbackName + "&t=" + Date.now();
+
+  script.onerror = function(){
+    rankList.innerHTML = '<div class="loading">โหลด Ranking ไม่สำเร็จ</div>';
+  };
+
+  document.body.appendChild(script);
+}
+
+function renderLeaderboard(data){
+  const rankList = document.getElementById("rankList");
+
+  if(!Array.isArray(data) || data.length === 0){
+    rankList.innerHTML = '<div class="loading">ยังไม่มีคะแนน</div>';
+    return;
+  }
+
+  const sorted = data.slice().sort((a,b) => Number(b.score) - Number(a.score));
+
+  rankList.innerHTML = sorted.slice(0,20).map((item,index) => {
+    return `
+      <div class="rank-row">
+        <div class="rank-no">#${index + 1}</div>
+        <div class="rank-name">${escapeHTML(item.name || "Player")}</div>
+        <div class="rank-score">
+          ${Number(item.score || 0)}
+          <small>${Number(item.accuracy || 0)}% Accuracy</small>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function escapeHTML(text){
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function restartGame(){
+  startGame();
+}
+
+function goHome(){
+  gameRunning = false;
+  clearInterval(spawnTimer);
+  clearInterval(clockTimer);
+  showPage("startPage");
+}
+
+function showToast(text,type){
+  const toast = document.getElementById("toast");
+
+  toast.innerText = text;
+  toast.style.color = type === "red" ? "#fe0121" : "#174c25";
+  toast.style.display = "block";
+
+  clearTimeout(toast.timer);
+
+  toast.timer = setTimeout(() => {
+    toast.style.display = "none";
+  }, 650);
+}
+
+function flashDamage(){
+  const flash = document.getElementById("flash");
+  flash.classList.add("active");
+
+  setTimeout(() => {
+    flash.classList.remove("active");
+  }, 250);
+}
+
+document.addEventListener("touchstart", e => {
+  if(!gameRunning) return;
+  setPlayerByClientX(e.touches[0].clientX);
+},{passive:true});
+
+document.addEventListener("touchmove", e => {
+  if(!gameRunning) return;
+  setPlayerByClientX(e.touches[0].clientX);
+},{passive:true});
+
+document.addEventListener("mousemove", e => {
+  if(!gameRunning) return;
+  setPlayerByClientX(e.clientX);
+});
+
+document.addEventListener("pointermove", e => {
+  if(!gameRunning) return;
+  setPlayerByClientX(e.clientX);
+});
+</script>
+</body>
+</html>
