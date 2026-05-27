@@ -63,6 +63,9 @@ button{
   height:100dvh;
   min-height:-webkit-fill-available;
 
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:env(safe-area-inset-bottom);
+
   position:relative;
 
   margin:0 auto;
@@ -73,7 +76,7 @@ button{
 
   box-shadow:0 0 40px rgba(0,0,0,.25);
 }
-
+  
 @media(min-width:700px){
   body{
     background:#eaffd8;
@@ -180,8 +183,8 @@ button{
 }
 
 .rank-btn{
-  position:fixed;
-  top:48px;
+  position:absolute;
+  top:max(16px, env(safe-area-inset-top));
   right:16px;
   z-index:80;
   width:58px;
@@ -268,7 +271,7 @@ button{
 
 .hud{
   position:absolute;
-  top:36px;
+  top:max(18px, env(safe-area-inset-top));
   left:12px;
   right:12px;
   display:grid;
@@ -293,7 +296,7 @@ button{
 
 .instruction{
   position:absolute;
-  top:112px;
+  top:104px;
   left:16px;
   right:16px;
   z-index:18;
@@ -577,6 +580,89 @@ button{
   .result-card{margin-top:20px}
   .big-score{font-size:48px}
 }
+
+@media (max-height:760px){
+
+  .game-logo{
+    width:240px;
+    margin-top:22px;
+  }
+
+  .subtitle{
+    font-size:15px;
+    padding:8px 12px;
+    margin-bottom:14px;
+  }
+
+  .start-card{
+    margin-top:12px;
+    padding:16px;
+  }
+
+  .start-card p{
+    font-size:13px;
+    line-height:1.45;
+  }
+
+  .input{
+    padding:12px;
+    font-size:16px;
+    margin:14px 0;
+  }
+
+  .btn{
+    padding:14px;
+    font-size:19px;
+  }
+
+  .hud{
+    top:max(10px, env(safe-area-inset-top));
+  }
+
+  .instruction{
+    top:88px;
+    font-size:13px;
+    padding:10px;
+  }
+
+  .player{
+    width:98px;
+    height:112px;
+    bottom:70px;
+  }
+
+  .player-body{
+    width:98px;
+    height:98px;
+  }
+
+  .move-hint{
+    bottom:12px;
+    font-size:14px;
+  }
+
+  .machine{
+    width:210px;
+    height:190px;
+    bottom:74px;
+  }
+
+  .machine-image{
+    width:120px;
+    height:120px;
+  }
+
+  .collected-panel{
+    top:92px;
+    padding:10px;
+  }
+
+  .toast{
+    top:210px;
+    font-size:13px;
+  }
+}
+  
 </style>
 </head>
 
